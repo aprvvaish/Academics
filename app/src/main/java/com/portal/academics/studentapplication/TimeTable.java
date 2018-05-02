@@ -1,6 +1,9 @@
 package com.portal.academics.studentapplication;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -14,8 +17,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
 
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Connection;
@@ -23,16 +30,21 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 public class TimeTable extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener {
     ImageView imageView;
-
+    String course;
     String[] semesters = {"I SEM","II SEM","III SEM","IV SEM","V SEM","VI SEM"};
     Spinner semester;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.timetable_activity);
+        SharedPreferences settings = getSharedPreferences("MYPREFS",MODE_PRIVATE);
+        course=settings.getString("course",null);
         imageView= findViewById(R.id.imageView2);
         semester =findViewById(R.id.spinner);
         ArrayAdapter aa = new ArrayAdapter(TimeTable.this,android.R.layout.simple_spinner_item,semesters);
@@ -54,26 +66,33 @@ public class TimeTable extends AppCompatActivity implements
 
     }
 
+    private class SendHttpRequestTask extends AsyncTask<String, Void, Bitmap> {
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            try {
+                URL url = new URL(params[0]);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream input = connection.getInputStream();
+                Bitmap myBitmap = BitmapFactory.decodeStream(input);
+                return myBitmap;
+            }catch (Exception e){
+                Log.println(Log.ERROR,"Error",e.getMessage());
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+
+            imageView.setImageBitmap(result);
+        }
+    }
+
     public class GetImage extends AsyncTask<Integer,Void,Void>
     {
         String imageLink="";
-
-        private Drawable createDrawableFromURL(String urlString) {
-            Drawable image = null;
-            try {
-                URL url = new URL(urlString);
-                InputStream is = (InputStream)url.getContent();
-                image = Drawable.createFromStream(is, "src");
-            } catch (MalformedURLException e) {
-                // handle URL exception
-                image = null;
-            } catch (IOException e) {
-                // handle InputStream exception
-                image = null;
-            }
-
-            return image;
-        }
 
         @Override
         protected Void doInBackground(Integer... num) {
@@ -91,7 +110,7 @@ public class TimeTable extends AppCompatActivity implements
                 Log.println(Log.INFO, "INFO", "Open");
 
                 Statement stmt =  con.createStatement();
-                ResultSet reset = stmt.executeQuery(" select image from timetable where LEFT(sem,1)= " + num[0]);
+                ResultSet reset = stmt.executeQuery(" select image from timetable where LEFT(sem,1)= " + num[0] +" and course= '" + course + "'");
 
                 if(reset.next()) {
                     imageLink=reset.getString(1);
@@ -111,9 +130,8 @@ public class TimeTable extends AppCompatActivity implements
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            int id = getResources().getIdentifier("com.portal.academics.studentapplication:drawable/" + imageLink, null, null);
-            imageView.setImageResource(id);
-            //imageView.setImageDrawable(id);//(createDrawableFromURL(imageLink));
+            new SendHttpRequestTask().execute(imageLink);
+
             super.onPostExecute(aVoid);
         }
     }
