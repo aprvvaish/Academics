@@ -46,6 +46,11 @@
                 android:name= "android.support.PARENT_ACTIVITY"
                 android:value="com.portal.academics.studentapplication.Dashboard" />
         </activity>
+        <activity android:name=".TimeTable">
+            <meta-data
+                android:name= "android.support.PARENT_ACTIVITY"
+                android:value="com.portal.academics.studentapplication.Dashboard" />
+        </activity>
 
     </application>
     <uses-permission android:name="android.permission.INTERNET"/>

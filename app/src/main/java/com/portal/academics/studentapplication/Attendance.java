@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -20,12 +21,12 @@ import java.sql.Statement;
 public class Attendance extends AppCompatActivity implements
         AdapterView.OnItemSelectedListener {
     String[] semesters = {"I SEM","II SEM","III SEM","IV SEM","V SEM","VI SEM"};
-    String[] months1 ={"Jul","Aug","Sep","Oct","Nov","Dec"};
-    String[] months2 ={"Jan","Feb","Mar","Apr","May","Jun"};
+    TextView subj,subj1,subj2,sh,sh1,sh2,at,at1,at2;
     Spinner sem;
-    Spinner month;
+
     int sem_pos;
     String userName;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,33 +34,29 @@ public class Attendance extends AppCompatActivity implements
         SharedPreferences settings = getSharedPreferences("MYPREFS",MODE_PRIVATE);
         userName=settings.getString("username",null);
 
+        subj =findViewById(R.id.textView5);
+        subj1 =findViewById(R.id.textView8);
+        subj2 =findViewById(R.id.textView11);
+        at =findViewById(R.id.textView6);
+        at1 =findViewById(R.id.textView9);
+        at2 =findViewById(R.id.textView12);
+        sh =findViewById(R.id.textView7);
+        sh1 =findViewById(R.id.textView10);
+        sh2 =findViewById(R.id.textView13);
+
         sem = findViewById(R.id.semester);
-        month = findViewById(R.id.month);
-        sem.setOnItemSelectedListener(this);
-        month.setOnItemSelectedListener(this);
+
         ArrayAdapter aa = new ArrayAdapter(Attendance.this,android.R.layout.simple_spinner_item,semesters);
         aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sem.setAdapter(aa);
-         sem_pos = sem.getSelectedItemPosition()+1;
-        ArrayAdapter aa1;
-        if(sem_pos/2 !=0)
-        {
-             aa1 = new ArrayAdapter(Attendance.this,android.R.layout.simple_spinner_item,months1);
-        }
-        else
-        {
-             aa1 = new ArrayAdapter(Attendance.this,android.R.layout.simple_spinner_item,months2);
-        }
-        aa1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        month.setAdapter(aa1);
+        sem.setOnItemSelectedListener(this);
+
 
     }
 
     @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long l) {
-        String str=month.getSelectedItem().toString();
-        String sem_position=String.valueOf(sem_pos);
-        new GetAttendance().execute(str,sem_position);
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long l) {
+        new GetAttendance().execute(pos+1);
 
     }
 
@@ -68,14 +65,15 @@ public class Attendance extends AppCompatActivity implements
 
     }
 
-    public class GetAttendance extends AsyncTask<String,Void,Void>
+    public class GetAttendance extends AsyncTask<Integer,Void,Void>
     {
-        private String attendance="";
-        private String shortage="";
-        boolean success = false;
+        private String attendance,attendance1,attendance2="";
+        private String shortage,shortage1,shortage2="";
+        private String subject,subject1,subject2="";
+        //boolean success = false;
 
         @Override
-        protected Void doInBackground(String... str) {
+        protected Void doInBackground(Integer... num) {
 
             try {
 
@@ -88,17 +86,26 @@ public class Attendance extends AppCompatActivity implements
 
                 Log.w("Connection", "open");
                 Log.println(Log.INFO, "INFO", "Open");
-                int num=Integer.getInteger(str[1]);
+                //int num=Integer.getInteger(str[1]);
+                Log.println(Log.INFO, "INFO", num[0].toString());
                 Statement stmt =  con.createStatement();
-                ResultSet reset = stmt.executeQuery(" select attendence, shortage from addattendence where usn= '"+ userName +"' and LEFT(month,3)= '" + str[0] +"' and LEFT(sem,1)= "+ num);
+                ResultSet reset = stmt.executeQuery("select sub, attendence, shortage from addattendence where month in( select month from addattendence where usn= '"+ userName +"' and LEFT(sem,1)= "+ num[0]+" )");
 
                 if(reset.next()) {
                     attendance=reset.getString("attendence");
                     shortage = reset.getString("shortage");
-
+                    subject = reset.getString("sub");
+                    reset.next();
+                    attendance1=reset.getString("attendence");
+                    shortage1 = reset.getString("shortage");
+                    subject1 = reset.getString("sub");
+                    reset.next();
+                    attendance2=reset.getString("attendence");
+                    shortage2 = reset.getString("shortage");
+                    subject2 = reset.getString("sub");
                 }
                 //name+=reset.getString(2);
-                Log.println(Log.INFO,"INFO",attendance+shortage);
+                Log.println(Log.INFO,"INFO",attendance+shortage+subject);
 
                 con.close();
 
@@ -114,8 +121,15 @@ public class Attendance extends AppCompatActivity implements
 
         @Override
         protected void onPostExecute(Void aVoid) {
-
-
+            subj.setText(subject);
+            subj1.setText(subject1);
+            subj2.setText(subject2);
+            at.setText(attendance);
+            at1.setText(attendance1);
+            at2.setText(attendance2);
+            sh.setText(shortage);
+            sh1.setText(shortage2);
+            sh2.setText(shortage2);
 
             super.onPostExecute(aVoid);
         }

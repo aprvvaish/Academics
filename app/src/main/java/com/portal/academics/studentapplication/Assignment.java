@@ -82,6 +82,8 @@ public class Assignment extends AppCompatActivity implements View.OnClickListene
                     .setNotificationConfig(new UploadNotificationConfig())
                     .setMaxRetries(2)
                     .startUpload(); //Starting the upload
+            Toast.makeText(this,
+                    "Image uploaded successfully",Toast.LENGTH_SHORT).show();
 
         } catch (Exception exc) {
             Toast.makeText(this, exc.getMessage(), Toast.LENGTH_SHORT).show();

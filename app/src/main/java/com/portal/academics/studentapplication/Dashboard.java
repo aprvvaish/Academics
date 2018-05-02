@@ -74,6 +74,16 @@ public class Dashboard extends AppCompatActivity {
             }
         });
 
+        ttable = findViewById(R.id.timetable_button);
+        ttable.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Dashboard.this,TimeTable.class);
+                startActivity(intent);
+            }
+        });
+
+
     }
 
 
