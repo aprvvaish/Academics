@@ -1,7 +1,10 @@
 package com.portal.academics.studentapplication;
 
+import android.app.Application;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,8 +28,8 @@ import com.mysql.jdbc.JDBC4ResultSet;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String USER_NAME =
-            "com.portal.academics.academicsapp.extra.MESSAGE";
+//    public static final String USER_NAME =
+//            "com.portal.academics.studentapplication.extra.MESSAGE";
     String user,pass;
     boolean checkUser = false;
     Button login_button;
@@ -58,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
     public class CheckUser extends AsyncTask<Void,Void,Void>
     {
-        private String name="";
+        private String course="";
         boolean success = false;
 
         @Override
@@ -80,10 +83,13 @@ public class MainActivity extends AppCompatActivity {
                 ResultSet reset = stmt.executeQuery(" select * from login where usn= '" + userName + "' and pswrd= '" + password +"'");
 
                 if(reset.next()) {
-                    success=true;
-                }
-                //name+=reset.getString(2);
+                    success = true;
 
+                    ResultSet reset1 = stmt.executeQuery("select course from registration where usn='" + userName+"'");
+                    if (reset1.next()) {
+                        course=reset1.getString(1);
+                    }
+                }
                 con.close();
                 //return msgString;
 
@@ -102,8 +108,13 @@ public class MainActivity extends AppCompatActivity {
             {
                 Toast.makeText(MainActivity.this,
                         "Login Successful",Toast.LENGTH_SHORT).show();
+                SharedPreferences settings = getSharedPreferences("MYPREFS",MODE_PRIVATE);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString("username", userName);
+                editor.putString("course", course);
+                editor.commit();
                 Intent intent = new Intent(MainActivity.this,Dashboard.class);
-                intent.putExtra(USER_NAME,userName);
+//                intent.putExtra(USER_NAME,userName);
                 startActivity(intent);
             }
             else

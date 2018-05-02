@@ -21,7 +21,33 @@
                 android:name= "android.support.PARENT_ACTIVITY"
                 android:value="com.portal.academics.studentapplication.MainActivity" />
         </activity>
+        <activity android:name=".ViewMarks">
+            <meta-data
+                android:name= "android.support.PARENT_ACTIVITY"
+                android:value="com.portal.academics.studentapplication.Dashboard" />
+        </activity>
+        <activity android:name=".Attendance">
+            <meta-data
+                android:name= "android.support.PARENT_ACTIVITY"
+                android:value="com.portal.academics.studentapplication.Dashboard" />
+        </activity>
+        <activity android:name=".TutorialLinks">
+            <meta-data
+                android:name= "android.support.PARENT_ACTIVITY"
+                android:value="com.portal.academics.studentapplication.Dashboard" />
+        </activity>
+        <activity android:name=".QuizLinks">
+            <meta-data
+                android:name= "android.support.PARENT_ACTIVITY"
+                android:value="com.portal.academics.studentapplication.Dashboard" />
+        </activity>
+        <activity android:name=".Assignment">
+            <meta-data
+                android:name= "android.support.PARENT_ACTIVITY"
+                android:value="com.portal.academics.studentapplication.Dashboard" />
+        </activity>
 
     </application>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 </manifest>
