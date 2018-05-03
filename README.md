@@ -1,7 +1,7 @@
 # Academics
 Android based Student Management Portal.
 
-The application is designed for students with following functionalities:
+The application is designed for students with following functionalities:  
 1.View Marks  
 2.View Attendance  
 3.View TimeTable  
